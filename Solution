@@ -1,0 +1,190 @@
+# 🌌 Celestial Bodies Database Project
+
+## 🛠️ Instructions
+
+Pour ce projet, connecte-toi à PostgreSQL avec la commande suivante dans le terminal :
+
+```bash
+psql --username=freecodecamp --dbname=postgres
+Ensuite, assure-toi que tous les tests passent pour valider le projet. Sois créatif et amuse-toi ! 😄
+
+N'oublie pas de te connecter à ta base de données après l'avoir créée :
+
+sql
+
+\c universe
+
+Voici quelques idées pour d'autres colonnes et tables :
+
+description, has_life, is_spherical, age_in_millions_of_years
+
+planet_types, galaxy_types, distance_from_earth
+
+#💾 Sauvegarde de la base de données
+Si tu quittes ta machine virtuelle, ta base pourrait être perdue. Pour la sauvegarder, utilise cette commande (dans un terminal bash, pas psql) :
+pg_dump -cC --inserts -U freecodecamp universe > universe.sql
+Pour restaurer la base depuis ce fichier :
+psql -U postgres < universe.sql
+
+#📋 Critères du projet
+Créer une base de données nommée **universe**
+
+Tables requises : galaxy, star, planet, moon, et une 5e optionnelle (ex : space_mission)
+
+Chaque table doit contenir :
+
+Une clé primaire nommée table_name_id
+
+Une colonne name de type VARCHAR
+
+Au moins 5 colonnes
+
+Au moins 2 colonnes NOT NULL
+
+Une colonne UNIQUE
+
+##Utiliser les types :
+
+INT pour au moins deux colonnes non clés
+
+NUMERIC au moins une fois
+
+TEXT au moins une fois
+
+BOOLEAN au moins deux fois
+
+##Relations :
+
+star → galaxy
+
+planet → star
+
+moon → planet
+
+##Contraintes :
+
+Au moins 5 tables
+
+Chaque table → au moins 3 lignes
+
+galaxy et star → 6 lignes minimum
+
+planet → 12 lignes minimum
+
+moon → 20 lignes minimum
+
+name → type VARCHAR
+
+Clé primaire : table_name_id
+
+Clé étrangère : même nom que la colonne référencée
+
+#🧱 Structure de base (exemples)
+#🪐 galaxy
+CREATE TABLE galaxy (
+  galaxy_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  galaxy_type TEXT NOT NULL,
+  age_in_millions_of_years INT,
+  has_life BOOLEAN,
+  description TEXT
+);
+#🌟 star
+CREATE TABLE star (
+  star_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  galaxy_id INT REFERENCES galaxy(galaxy_id) NOT NULL,
+  mass NUMERIC(10,2),
+  is_spherical BOOLEAN NOT NULL,
+  distance_from_earth INT
+);
+#🌍 planet
+CREATE TABLE planet (
+  planet_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  star_id INT REFERENCES star(star_id) NOT NULL,
+  has_life BOOLEAN,
+  planet_type TEXT NOT NULL,
+  orbital_period NUMERIC(8,2)
+);
+#🌑 moon
+CREATE TABLE moon (
+  moon_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  planet_id INT REFERENCES planet(planet_id) NOT NULL,
+  diameter INT,
+  is_spherical BOOLEAN NOT NULL,
+  composition TEXT
+);
+#🚀 space_mission (exemple de 5e table)
+CREATE TABLE space_mission (
+  space_mission_id SERIAL PRIMARY KEY,
+  name VARCHAR(100) UNIQUE NOT NULL,
+  description TEXT,
+  success BOOLEAN NOT NULL,
+  launch_year INT NOT NULL,
+  galaxy_id INT REFERENCES galaxy(galaxy_id)
+);
+#📥 Données d'exemple
+##Galaxy (6 lignes)
+INSERT INTO galaxy (name, galaxy_type, age_in_millions_of_years, has_life, description) VALUES
+('Milky Way', 'Spiral', 13600, TRUE, 'Our home galaxy'),
+('Andromeda', 'Spiral', 10000, FALSE, 'Nearest spiral galaxy'),
+('Triangulum', 'Spiral', 4000, FALSE, 'A member of our local group'),
+('Whirlpool', 'Spiral', 500, FALSE, 'Located in Canes Venatici'),
+('Messier 87', 'Elliptical', 13000, FALSE, 'Giant elliptical in Virgo cluster'),
+('Sombrero', 'Spiral', 9000, FALSE, 'Unusual shape');
+##Star (6 lignes)
+INSERT INTO star (name, galaxy_id, mass, is_spherical, distance_from_earth) VALUES
+('Sun', 1, 1.00, TRUE, 0),
+('Proxima Centauri', 1, 0.12, TRUE, 4),
+('Sirius', 1, 2.02, TRUE, 8),
+('Betelgeuse', 1, 20.00, TRUE, 642),
+('Rigel', 1, 18.00, TRUE, 860),
+('Vega', 1, 2.14, TRUE, 25);
+##Planet (12 lignes)
+INSERT INTO planet (name, star_id, has_life, planet_type, orbital_period) VALUES
+('Mercury', 1, FALSE, 'Terrestrial', 87.97),
+('Venus', 1, FALSE, 'Terrestrial', 224.70),
+('Earth', 1, TRUE, 'Terrestrial', 365.25),
+('Mars', 1, FALSE, 'Terrestrial', 687.00),
+('Jupiter', 1, FALSE, 'Gas Giant', 4331.00),
+('Saturn', 1, FALSE, 'Gas Giant', 10747.00),
+('Uranus', 1, FALSE, 'Ice Giant', 30589.00),
+('Neptune', 1, FALSE, 'Ice Giant', 59800.00),
+('Proxima b', 2, FALSE, 'Terrestrial', 11.20),
+('Sirius Ab', 3, FALSE, 'Gas Giant', 300.00),
+('Vega I', 6, FALSE, 'Terrestrial', 100.00),
+('Rigel I', 5, FALSE, 'Gas Giant', 600.00);
+##Moon(20 lignes)
+INSERT INTO moon (name, planet_id, diameter, is_spherical, composition) VALUES
+('Moon', 3, 3474, TRUE, 'Rocky'),
+('Phobos', 4, 22, TRUE, 'Rocky'),
+('Deimos', 4, 12, TRUE, 'Rocky'),
+('Io', 5, 3643, TRUE, 'Sulfur'),
+('Europa', 5, 3122, TRUE, 'Ice'),
+('Ganymede', 5, 5268, TRUE, 'Rock/Ice'),
+('Callisto', 5, 4820, TRUE, 'Rock/Ice'),
+('Titan', 6, 5150, TRUE, 'Nitrogen/Ice'),
+('Enceladus', 6, 504, TRUE, 'Ice'),
+('Mimas', 6, 396, TRUE, 'Ice'),
+('Rhea', 6, 1528, TRUE, 'Ice'),
+('Iapetus', 6, 1469, TRUE, 'Ice'),
+('Dione', 6, 1122, TRUE, 'Ice'),
+('Tethys', 6, 1062, TRUE, 'Ice'),
+('Miranda', 7, 472, TRUE, 'Ice/Rock'),
+('Ariel', 7, 1158, TRUE, 'Ice/Rock'),
+('Umbriel', 7, 1169, TRUE, 'Ice/Rock'),
+('Titania', 7, 1577, TRUE, 'Ice/Rock'),
+('Oberon', 7, 1523, TRUE, 'Ice/Rock'),
+('Triton', 8, 2706, TRUE, 'Ice/Rock');
+##Space Mission (3 lignes)
+INSERT INTO space_mission (name, galaxy_id, success, launch_year, description) VALUES
+('Voyager 1', 1, TRUE, 1977, 'Exploration of outer planets and interstellar space'),
+('Hubble Telescope', 1, TRUE, 1990, 'Space telescope observing distant galaxies'),
+('Kepler Mission', 1, TRUE, 2009, 'Search for exoplanets in the Milky Way');
+##✅ Sauvegarder ton fichier .sql
+Dans le terminal :
+pg_dump -cC --inserts -U freecodecamp universe > universe.sql
+Ajoute ensuite universe.sql dans ton dépôt GitHub et soumets l'URL sur freeCodeCamp.
+
